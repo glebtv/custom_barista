@@ -10,6 +10,8 @@ With a working GO env:
 
     go get github.com/glebtv/custom_barista/
 
+Add fonts from fonts dir to ~/.fonts
+
 # Usage
 
 in ~/.i3/config:

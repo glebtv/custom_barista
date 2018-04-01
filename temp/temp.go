@@ -10,7 +10,7 @@ import (
 	"github.com/soumya92/barista/modules/cputemp"
 	"github.com/soumya92/barista/outputs"
 	"github.com/soumya92/barista/pango"
-	materialCommunity "github.com/soumya92/barista/pango/icons/material_community"
+	"github.com/soumya92/barista/pango/icons/material"
 )
 
 var spacer = pango.Span(" ", pango.XXSmall)
@@ -24,7 +24,7 @@ func home(path string) string {
 }
 
 func Get() cputemp.Module {
-	materialCommunity.Load(home("Github/MaterialDesign-Webfont"))
+	material.Load(home("material-design-icons"))
 
 	temp := cputemp.DefaultZone().
 		RefreshInterval(2 * time.Second).
@@ -43,7 +43,7 @@ func Get() cputemp.Module {
 		}).
 		OutputFunc(func(temp cputemp.Temperature) bar.Output {
 			return outputs.Pango(
-				materialCommunity.Icon("fan"), spacer,
+				material.Icon("build"), spacer,
 				pango.Textf("%2d℃", temp.C()),
 			)
 		})

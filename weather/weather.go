@@ -1,6 +1,8 @@
 package weather
 
 import (
+	"os/user"
+	"path/filepath"
 	"time"
 
 	"github.com/soumya92/barista/bar"
@@ -13,7 +15,17 @@ import (
 
 var spacer = pango.Span(" ", pango.XXSmall)
 
+func home(path string) string {
+	usr, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
+	return filepath.Join(usr.HomeDir, path)
+}
+
 func Get() weather.Module {
+	typicons.Load(home(".fonts/typicons"))
+
 	// Weather information comes from OpenWeatherMap.
 	// https://openweathermap.org/api.
 	wthr := weather.New(

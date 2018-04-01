@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/glebtv/custom_barista/kbdlayout"
 	"github.com/glebtv/custom_barista/temp"
 	"github.com/glebtv/custom_barista/weather"
 	"github.com/soumya92/barista/bar"
@@ -19,35 +20,14 @@ import (
 	"github.com/soumya92/barista/modules/meminfo"
 	"github.com/soumya92/barista/modules/netspeed"
 	"github.com/soumya92/barista/modules/sysinfo"
+	"github.com/soumya92/barista/modules/wlan"
 	"github.com/soumya92/barista/outputs"
 	"github.com/soumya92/barista/pango"
 	"github.com/soumya92/barista/pango/icons/fontawesome"
-	"github.com/soumya92/barista/pango/icons/ionicons"
 	"github.com/soumya92/barista/pango/icons/material"
-	"github.com/soumya92/barista/pango/icons/typicons"
 )
 
 var spacer = pango.Span(" ", pango.XXSmall)
-
-func truncate(in string, l int) string {
-	if len([]rune(in)) <= l {
-		return in
-	}
-	return string([]rune(in)[:l-1]) + "⋯"
-}
-
-func hms(d time.Duration) (h int, m int, s int) {
-	h = int(d.Hours())
-	m = int(d.Minutes()) % 60
-	s = int(d.Seconds()) % 60
-	return
-}
-
-func startTaskManager(e bar.Event) {
-	if e.Button == bar.ButtonLeft {
-		exec.Command("xfce4-taskmanager").Run()
-	}
-}
 
 func home(path string) string {
 	usr, err := user.Current()
@@ -58,10 +38,8 @@ func home(path string) string {
 }
 
 func main() {
-	material.Load(home("Github/material-design-icons"))
-	typicons.Load(home("Github/typicons.font"))
-	ionicons.Load(home("Github/ionicons"))
-	fontawesome.Load(home("Github/Font-Awesome"))
+	// git clone git@github.com:google/material-design-icons.git ~/material-design-icons
+	material.Load(home("material-design-icons"))
 
 	colors.LoadFromMap(map[string]string{
 		"good":     "#6d6",
@@ -69,11 +47,12 @@ func main() {
 		"bad":      "#d66",
 		"dim-icon": "#777",
 	})
+	// pacin gsimplecal
 
 	localtime := clock.New().OutputFunc(func(now time.Time) bar.Output {
 		return outputs.Pango(
 			material.Icon("today", colors.Scheme("dim-icon")),
-			now.Format("Mon Jan 2 "),
+			now.Format("2006-01-02 "),
 			material.Icon("access-time", colors.Scheme("dim-icon")),
 			now.Format("15:04:05"),
 		)
@@ -99,7 +78,7 @@ func main() {
 			out.Color(colors.Scheme("degraded"))
 		}
 		return out
-	}).OnClick(startTaskManager)
+	})
 
 	freeMem := meminfo.New().OutputFunc(func(m meminfo.Info) bar.Output {
 		out := outputs.Pango(material.Icon("memory"), m.Available().IEC())
@@ -115,22 +94,28 @@ func main() {
 			out.Color(colors.Scheme("good"))
 		}
 		return out
-	}).OnClick(startTaskManager)
+	})
 
 	net := netspeed.New("enp4s0").
 		RefreshInterval(2 * time.Second).
 		OutputFunc(func(s netspeed.Speeds) bar.Output {
 			return outputs.Pango(
-				fontawesome.Icon("upload"), spacer, pango.Textf("%5s", s.Tx.SI()),
+				fontawesome.Icon("file_upload"), spacer, pango.Textf("%5s", s.Tx.SI()),
 				pango.Span(" ", pango.Small),
-				fontawesome.Icon("download"), spacer, pango.Textf("%5s", s.Rx.SI()),
+				fontawesome.Icon("file_download"), spacer, pango.Textf("%5s", s.Rx.SI()),
 			)
 		})
+
+	wlan := wlan.New("wlp3s0")
+
+	layout := kbdlayout.New()
 
 	g := group.Collapsing()
 
 	panic(bar.Run(
+		layout,
 		g.Add(net),
+		g.Add(wlan),
 		g.Add(temp.Get()),
 		g.Add(freeMem),
 		g.Add(loadAvg),

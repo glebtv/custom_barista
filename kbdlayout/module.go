@@ -1,27 +1,17 @@
 package kbdlayout
 
 import (
-	"time"
-
-	"github.com/glebtv/custom_barista/kbdlayout"
 	"github.com/soumya92/barista/bar"
 	"github.com/soumya92/barista/base"
-	"github.com/soumya92/barista/base/scheduler"
+	"github.com/soumya92/barista/outputs"
 )
-
-// Module represents a clock bar module. It supports setting the click handler,
-// timezone, output format, and granularity.
-type Module interface {
-	base.WithClickHandler
-}
 
 type module struct {
 	*base.Base
-	outputFunc func(time.Time) bar.Output
 }
 
 // New constructs an instance of the clock module with a default configuration.
-func New() Module {
+func New() bar.Module {
 	m := &module{
 		Base: base.New(),
 	}
@@ -31,15 +21,26 @@ func New() Module {
 }
 
 func (m *module) update() {
-	now := scheduler.Now()
 	m.Lock()
 	var out string
-	layout, err := kbdlayout.GetLayout()
+	layout, err := GetLayout()
 	if err != nil {
 		out = err.Error()
 	} else {
 		out = layout
 	}
 	m.Unlock()
-	m.Output(out)
+	m.Output(outputs.Text(out))
+
+	Subscribe(func(layout string) {
+		m.Output(outputs.Text(layout))
+	})
+}
+
+func (m *module) Click(e bar.Event) {
+	if e.Button == bar.ButtonLeft {
+		SwitchToNext()
+		m.update()
+	}
+	m.Base.Click(e)
 }
