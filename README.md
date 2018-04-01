@@ -1,8 +1,8 @@
 ## Custom Barista config
 
-# NOT WORKING YET / DO NOT USE
-
 This is my custom config for [barista](https://github.com/soumya92/barista) i3bar replacement.
+
+Includes custom keyboard layout module
 
 ## Installation
 
