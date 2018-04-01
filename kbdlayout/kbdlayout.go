@@ -12,7 +12,9 @@ import (
 
 var Layouts []string
 var Layout string
+var Mods uint8
 var Group byte
+var Callback func(string, uint8)
 
 func parseLayoutNames(names string) []string {
 	//log.Println("parsing layout names:", names)
@@ -64,7 +66,7 @@ func init() {
 	}
 }
 
-func GetLayout() (string, error) {
+func GetLayout() (string, uint8, error) {
 	conn := X.Conn()
 
 	//spew.Dump(vresp.Reply())
@@ -73,7 +75,7 @@ func GetLayout() (string, error) {
 	anresp := xproto.GetAtomName(conn, xproto.Atom(0x1f2))
 	anreply, err := anresp.Reply()
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	//log.Println("layout names:", anreply.Name)
 	names := parseLayoutNames(anreply.Name)
@@ -83,25 +85,25 @@ func GetLayout() (string, error) {
 	sresp := xkeyboard.GetState(conn, 3)
 	sreply, err := sresp.Reply()
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
+	//spew.Dump(sreply)
 	//log.Println("getstate reply, group:", sreply.Group)
 	Layout = names[sreply.Group]
+	Mods = sreply.LatchedMods
 	Group = sreply.Group
-	return Layout, nil
+	return Layout, Mods, nil
 }
 
-var Callback func(string)
-
-func Subscribe(callback func(string)) {
+func Subscribe(callback func(string, uint8)) {
 	Callback = callback
 	updateMaps := func() {
-		//log.Println("mappings updated")
-		layout, err := GetLayout()
+		layout, mods, err := GetLayout()
+		//log.Println(layout, mods)
 		if err != nil {
 			panic(err)
 		}
-		callback(layout)
+		callback(layout, mods)
 	}
 
 	// Doesn't work with XKEYBOARD and current X11 - see below
@@ -119,17 +121,17 @@ func Subscribe(callback func(string)) {
 
 	// xevent doesn't support events we need, so loop manually
 	//xevent.Main(X)
-	MainLoop(X, updateMaps)
+	go MainLoop(X, updateMaps)
 }
 
 func Switch(groupNum byte) {
 	xkeyboard.LatchLockState(X.Conn(), []byte{0x00, 0x01, 0x00, 0x00, 0x01, groupNum, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00})
 	if Callback != nil {
-		layout, err := GetLayout()
+		layout, mods, err := GetLayout()
 		if err != nil {
 			panic(err)
 		}
-		Callback(layout)
+		Callback(layout, mods)
 	}
 }
 

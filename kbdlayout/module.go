@@ -1,9 +1,10 @@
 package kbdlayout
 
 import (
+	"strings"
+
 	"github.com/soumya92/barista/bar"
 	"github.com/soumya92/barista/base"
-	"github.com/soumya92/barista/outputs"
 )
 
 type module struct {
@@ -17,24 +18,33 @@ func New() bar.Module {
 	}
 	// Default output template
 	m.OnUpdate(m.update)
+
+	Subscribe(func(layout string, mods uint8) {
+		m.Send(layout, mods)
+	})
+
 	return m
 }
 
 func (m *module) update() {
 	m.Lock()
-	var out string
-	layout, err := GetLayout()
+	layout, mods, err := GetLayout()
 	if err != nil {
-		out = err.Error()
-	} else {
-		out = layout
+		layout = err.Error()
+		mods = 0
 	}
 	m.Unlock()
-	m.Output(outputs.Text(out))
+	m.Send(layout, mods)
+}
 
-	Subscribe(func(layout string) {
-		m.Output(outputs.Text(layout))
-	})
+func (m *module) Send(layout string, mods uint8) {
+	out := make(bar.Output, 0)
+	lseg := bar.NewSegment(strings.ToUpper(layout))
+	out = append(out, lseg)
+	for _, mod := range GetMods(mods) {
+		out = append(out, bar.NewSegment(mod))
+	}
+	m.Output(out)
 }
 
 func (m *module) Click(e bar.Event) {
