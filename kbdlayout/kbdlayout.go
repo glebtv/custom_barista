@@ -2,62 +2,140 @@ package kbdlayout
 
 import (
 	"log"
+	"strings"
 
-	"github.com/BurntSushi/xgb"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/BurntSushi/xgb/xproto"
+	"github.com/BurntSushi/xgbutil"
+	"github.com/BurntSushi/xgbutil/xevent"
 	"github.com/glebtv/custom_barista/kbdlayout/xkeyboard"
 )
 
-func GetLayout() (string, error) {
-	X, err := xgb.NewConn()
+func parseLayoutNames(names string) []string {
+	parts := strings.Split(names, "+")
+	ret := make([]string, 0)
+	for i, part := range parts {
+		//log.Println(i, part)
+		if i == 0 {
+			continue
+		}
+		if i == 1 {
+			ret = append(ret, part)
+		}
+		if i == 2 {
+			pt := strings.Split(part, ":")
+			if len(pt) > 0 {
+				ret = append(ret, pt[0])
+			}
+		}
+	}
+	return ret
+}
+
+var X *xgbutil.XUtil
+
+func init() {
+	var err error
+
+	X, err = xgbutil.NewConn()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = xkeyboard.Init(X)
+	conn := X.Conn()
+
+	err = xkeyboard.Init(conn)
 	if err != nil {
 		log.Fatal(err)
 	}
-	//newKeymap, keyErr := xproto.GetKeyboardMapping(xu.Conn(), min, byte(max-min+1)).Reply()
-	//spew.Dump(newKeymap, keyErr)
 
 	// this is really UseExtension message
-	vresp := xkeyboard.GetVersion(X, 1, 0)
+	vresp := xkeyboard.GetVersion(conn, 1, 0)
 	//spew.Dump(vresp.Cookie.Reply())
-	spew.Dump(vresp.Reply())
+	_, err = vresp.Reply()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
-	vresp = xkeyboard.GetVersion(X, 1, 0)
-	//spew.Dump(vresp.Cookie.Reply())
-	spew.Dump(vresp.Reply())
+func GetLayout() (string, error) {
+	conn := X.Conn()
+
+	//spew.Dump(vresp.Reply())
 
 	// GetAtomName for atom=0x1f2 (symbolsName atom)
-	//anresp := xproto.GetAtomName(X, xproto.Atom(0x1f2))
-	//anreply, err := anresp.Reply()
-	//log.Println("symbol names reply:")
-	//log.Println(anreply.Name)
-	//spew.Dump(anreply, err)
+	anresp := xproto.GetAtomName(conn, xproto.Atom(0x1f2))
+	anreply, err := anresp.Reply()
+	if err != nil {
+		return "", err
+	}
+	//log.Println("layout names:", anreply.Name)
+	names := parseLayoutNames(anreply.Name)
+	//log.Println("parsed layout names:")
+	//spew.Dump(names)
 
-	log.Println("get state start")
-	sresp := xkeyboard.GetState(X, 3)
+	sresp := xkeyboard.GetState(conn, 3)
 	sreply, err := sresp.Reply()
-	log.Println("getstate reply:")
-	spew.Dump(sreply, err)
+	if err != nil {
+		return "", err
+	}
+	//log.Println("getstate reply, group:", sreply.Group)
 
-	//nresp := xkeyboard.GetNames(X, xkeyboard.XkbSymbolsNameMask)
-	//log.Println("reply:")
-	//spew.Dump(nresp)
-	//repl, err := nresp.Reply()
-	//spew.Dump(repl, err)
+	return names[sreply.Group], nil
+}
 
-	//nresp = xkeyboard.GetNames(X, xkeyboard.XkbGroupNamesMask)
-	//log.Println("reply:")
-	//spew.Dump(nresp)
-	//repl, err = nresp.Reply()
-	//spew.Dump(repl, err)
+func Subscribe(callback func(string)) {
+	updateMaps := func() {
+		//log.Println("mappings updated")
+		layout, err := GetLayout()
+		if err != nil {
+			panic(err)
+		}
+		callback(layout)
+	}
 
-	// Get the window id of the root window.
-	//setup := xproto.Setup(X)
-	//root := setup.DefaultScreen(X).Root
+	// Doesn't work with XKEYBOARD and current X11 - see below
+	//xevent.MappingNotifyFun(updateMaps).Connect(X, xevent.NoWindow)
+	//xevent.KeymapNotifyFun(updateMaps).Connect(X, xevent.NoWindow)
 
-	return "test", nil
+	// @See https://stackoverflow.com/a/48407438/679778
+	// this is XkbSelectEvents(d, XkbUseCoreKbd, XkbAllEventsMask, XkbAllEventsMask);
+	// Dumped via xtrace
+	// This messages have no reply from X11
+	//xkeyboard.SelectEvents(X.Conn(), []byte{0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00})
+	//xkeyboard.SelectEvents(X.Conn(), []byte{0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x00, 0x07, 0x00})
+	xkeyboard.SelectEvents(X.Conn(), []byte{0x00, 0x01, 0xff, 0x0f, 0x00, 0x00, 0xff, 0x0f, 0xff, 0x00, 0xff, 0x00})
+	//log.Println("subscribed to mappings notification")
+
+	// xevent doesn't support events we need, so loop manually
+	//xevent.Main(X)
+	MainLoop(X, updateMaps)
+}
+
+func MainLoop(xu *xgbutil.XUtil, updateMaps func()) {
+	for {
+		if xevent.Quitting(xu) {
+			break
+		}
+
+		// Gobble up as many events as possible (into the queue).
+		// If there are no events, we block.
+		xevent.Read(xu, true)
+
+		for !xevent.Empty(xu) {
+			if xevent.Quitting(xu) {
+				return
+			}
+			ev, err := xevent.Dequeue(xu)
+			if err != nil {
+				log.Fatal(err)
+			}
+			switch v := ev.(type) {
+			case xkeyboard.XkbEvent:
+				if v.Type == xkeyboard.XkbExtensionDeviceNotify {
+					updateMaps()
+				}
+				//spew.Dump(ev)
+			}
+		}
+	}
 }

@@ -12,4 +12,9 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("layout:", layout)
+	kbdlayout.Subscribe(func(layout string) {
+		fmt.Println("layout:", layout)
+	})
+
+	//select {}
 }

@@ -7,6 +7,10 @@ Only just enough to get keyboard LEDs and layouts / current layout is implemente
 
 info links:
 
+https://github.com/BurntSushi/xgb
+
+https://github.com/BurntSushi/xgbutil
+
 https://aur.archlinux.org/packages/xtrace-git/
 
 https://xtrace.alioth.debian.org/
