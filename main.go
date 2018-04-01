@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/glebtv/custom_barista/kbdlayout"
@@ -15,6 +16,7 @@ import (
 	"github.com/glebtv/custom_barista/weather"
 	"github.com/soumya92/barista/bar"
 	"github.com/soumya92/barista/colors"
+	"github.com/soumya92/barista/modules/battery"
 	"github.com/soumya92/barista/modules/clock"
 	"github.com/soumya92/barista/modules/group"
 	"github.com/soumya92/barista/modules/meminfo"
@@ -108,12 +110,29 @@ func main() {
 
 	wlan := wlan.New("wlp3s0")
 
-	layout := kbdlayout.New()
+	layout := kbdlayout.New().OutputFunc(func(i kbdlayout.Info) bar.Output {
+		out := make(bar.Output, 0)
+		la := strings.ToUpper(i.Layout)
+		lseg := bar.NewSegment(la)
+		if la != "US" {
+			lseg.Color(colors.Scheme("bad"))
+		}
+		out = append(out, lseg)
+		for _, mod := range i.GetMods() {
+			s := bar.NewSegment(mod)
+			if mod == "CAPS" {
+				s.Color(colors.Scheme("bad"))
+			}
+			out = append(out, s)
+		}
+		return out
+	})
 
 	g := group.Collapsing()
 
 	panic(bar.Run(
 		layout,
+		battery.New("BAT0"),
 		g.Add(net),
 		g.Add(wlan),
 		g.Add(temp.Get()),

@@ -7,26 +7,68 @@ import (
 	"github.com/soumya92/barista/base"
 )
 
-type module struct {
+const NUM_LOCK = 16
+const CAPS_LOCK = 2
+
+type Info struct {
+	// Layout code
+	Layout string
+	// Mods - modifier map
+	Mods uint8
+}
+
+func (i Info) GetMods() []string {
+	ret := make([]string, 0)
+	if i.Mods&NUM_LOCK == NUM_LOCK {
+		ret = append(ret, "NUM")
+	}
+	if i.Mods&CAPS_LOCK == CAPS_LOCK {
+		ret = append(ret, "CAPS")
+	}
+	//log.Println("getmods", mods, ret)
+	return ret
+}
+
+type Module struct {
 	*base.Base
+	outputFunc func(Info) bar.Output
+}
+
+var DefaultOutputFunc = func(i Info) bar.Output {
+	out := make(bar.Output, 0)
+	lseg := bar.NewSegment(strings.ToUpper(i.Layout))
+	out = append(out, lseg)
+	for _, mod := range i.GetMods() {
+		out = append(out, bar.NewSegment(mod))
+	}
+	return out
 }
 
 // New constructs an instance of the clock module with a default configuration.
-func New() bar.Module {
-	m := &module{
-		Base: base.New(),
+func New() *Module {
+	m := &Module{
+		Base:       base.New(),
+		outputFunc: DefaultOutputFunc,
 	}
 	// Default output template
 	m.OnUpdate(m.update)
 
 	Subscribe(func(layout string, mods uint8) {
-		m.Send(layout, mods)
+		i := Info{Layout: layout, Mods: mods}
+		m.Output(m.outputFunc(i))
 	})
 
 	return m
 }
 
-func (m *module) update() {
+func (m *Module) OutputFunc(outputFunc func(Info) bar.Output) *Module {
+	m.Lock()
+	defer m.UnlockAndUpdate()
+	m.outputFunc = outputFunc
+	return m
+}
+
+func (m *Module) update() {
 	m.Lock()
 	layout, mods, err := GetLayout()
 	if err != nil {
@@ -34,20 +76,11 @@ func (m *module) update() {
 		mods = 0
 	}
 	m.Unlock()
-	m.Send(layout, mods)
+	i := Info{Layout: layout, Mods: mods}
+	m.Output(m.outputFunc(i))
 }
 
-func (m *module) Send(layout string, mods uint8) {
-	out := make(bar.Output, 0)
-	lseg := bar.NewSegment(strings.ToUpper(layout))
-	out = append(out, lseg)
-	for _, mod := range GetMods(mods) {
-		out = append(out, bar.NewSegment(mod))
-	}
-	m.Output(out)
-}
-
-func (m *module) Click(e bar.Event) {
+func (m *Module) Click(e bar.Event) {
 	if e.Button == bar.ButtonLeft {
 		SwitchToNext()
 		m.update()
