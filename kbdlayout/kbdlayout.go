@@ -10,7 +10,12 @@ import (
 	"github.com/glebtv/custom_barista/kbdlayout/xkeyboard"
 )
 
+var Layouts []string
+var Layout string
+var Group byte
+
 func parseLayoutNames(names string) []string {
+	//log.Println("parsing layout names:", names)
 	parts := strings.Split(names, "+")
 	ret := make([]string, 0)
 	for i, part := range parts {
@@ -28,6 +33,8 @@ func parseLayoutNames(names string) []string {
 			}
 		}
 	}
+	Layouts = ret
+	//spew.Dump(ret)
 	return ret
 }
 
@@ -79,11 +86,15 @@ func GetLayout() (string, error) {
 		return "", err
 	}
 	//log.Println("getstate reply, group:", sreply.Group)
-
-	return names[sreply.Group], nil
+	Layout = names[sreply.Group]
+	Group = sreply.Group
+	return Layout, nil
 }
 
+var Callback func(string)
+
 func Subscribe(callback func(string)) {
+	Callback = callback
 	updateMaps := func() {
 		//log.Println("mappings updated")
 		layout, err := GetLayout()
@@ -109,6 +120,25 @@ func Subscribe(callback func(string)) {
 	// xevent doesn't support events we need, so loop manually
 	//xevent.Main(X)
 	MainLoop(X, updateMaps)
+}
+
+func Switch(groupNum byte) {
+	xkeyboard.LatchLockState(X.Conn(), []byte{0x00, 0x01, 0x00, 0x00, 0x01, groupNum, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00})
+	if Callback != nil {
+		layout, err := GetLayout()
+		if err != nil {
+			panic(err)
+		}
+		Callback(layout)
+	}
+}
+
+func SwitchToNext() {
+	next := Group + 1
+	if int(next) > len(Layouts) {
+		next = 0
+	}
+	Switch(next)
 }
 
 func MainLoop(xu *xgbutil.XUtil, updateMaps func()) {
