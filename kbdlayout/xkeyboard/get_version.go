@@ -15,7 +15,7 @@ func GetVersion(c *xgb.Conn, MajorVersion byte, MinorVersion uint16) GetVersionC
 	c.ExtLock.RLock()
 	defer c.ExtLock.RUnlock()
 	if _, ok := c.Extensions["XKEYBOARD"]; !ok {
-		panic("Cannot issue request 'GetVersion' using the uninitialized extension 'XTEST'. xtest.Init(connObj) must be called first.")
+		panic("Cannot issue request 'GetVersion' using the uninitialized extension 'XKEYBOARD'. xkeyboard.Init(connObj) must be called first.")
 	}
 	cookie := c.NewCookie(true, true)
 	c.NewRequest(getVersionRequest(c, MajorVersion, MinorVersion), cookie)
@@ -28,7 +28,7 @@ func GetVersionUnchecked(c *xgb.Conn, MajorVersion byte, MinorVersion uint16) Ge
 	c.ExtLock.RLock()
 	defer c.ExtLock.RUnlock()
 	if _, ok := c.Extensions["XKEYBOARD"]; !ok {
-		panic("Cannot issue request 'GetVersion' using the uninitialized extension 'XTEST'. xtest.Init(connObj) must be called first.")
+		panic("Cannot issue request 'GetVersion' using the uninitialized extension 'XKEYBOARD'. xkeyboard.Init(connObj) must be called first.")
 	}
 	cookie := c.NewCookie(false, true)
 	c.NewRequest(getVersionRequest(c, MajorVersion, MinorVersion), cookie)

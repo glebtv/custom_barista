@@ -1,10 +1,7 @@
 package xkeyboard
 
 import (
-	"log"
-
 	"github.com/BurntSushi/xgb"
-	"github.com/davecgh/go-spew/spew"
 )
 
 // GetVersionCookie is a cookie used only for GetVersion requests.
@@ -12,8 +9,8 @@ type GetNamesCookie struct {
 	*xgb.Cookie
 }
 
-const XkbSymbolsNameMask = (1<<2)
-const XkbGroupNamesMask = (1<<12)
+const XkbSymbolsNameMask = (1 << 2)
+const XkbGroupNamesMask = (1 << 12)
 
 // GetVersion sends a checked request.
 // If an error occurs, it will be returned with the reply by calling GetVersionCookie.Reply()
@@ -68,8 +65,6 @@ func (cook GetNamesCookie) Reply() (*GetNamesReply, error) {
 
 // getNamesReply reads a byte slice into a GetNamesReply value.
 func getNamesReply(buf []byte) *GetNamesReply {
-	log.Println("parsing reply:")
-	spew.Dump(buf)
 	v := new(GetNamesReply)
 	b := 1 // skip reply determinant
 
@@ -106,7 +101,7 @@ func getNamesRequest(c *xgb.Conn, which uint32) []byte {
 	xgb.Put16(buf[b:], uint16(size/4)) // write request size in 4-byte units
 	b += 2
 
-	xgb.Put16(buf[b:], uint16(0)) // deviceSpec ?
+	xgb.Put16(buf[b:], uint16(3)) // deviceSpec ?
 	b += 2
 
 	xgb.Put16(buf[b:], uint16(0)) // pad ?
@@ -114,7 +109,5 @@ func getNamesRequest(c *xgb.Conn, which uint32) []byte {
 
 	xgb.Put32(buf[b:], which)
 	b += 4
-	log.Println("request:")
-	spew.Dump(buf)
 	return buf
 }

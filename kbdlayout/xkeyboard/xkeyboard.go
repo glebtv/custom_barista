@@ -4,12 +4,11 @@ package xkeyboard
 import (
 	"github.com/BurntSushi/xgb"
 	"github.com/BurntSushi/xgb/xproto"
-	"github.com/davecgh/go-spew/spew"
 )
 
 func Init(c *xgb.Conn) error {
 	reply, err := xproto.QueryExtension(c, 9, "XKEYBOARD").Reply()
-	spew.Dump(reply, err)
+	//spew.Dump(reply, err)
 
 	switch {
 	case err != nil:
@@ -23,4 +22,3 @@ func Init(c *xgb.Conn) error {
 	c.ExtLock.Unlock()
 	return nil
 }
-
