@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/glebtv/custom_barista/kbdlayout"
 	"github.com/glebtv/custom_barista/temp"
 	"github.com/glebtv/custom_barista/weather"
@@ -101,7 +100,7 @@ func main() {
 			net := netspeed.New(ifc.Name).
 				RefreshInterval(2 * time.Second).
 				OutputFunc(func(s netspeed.Speeds) bar.Output {
-					spew.Dump(s)
+					//spew.Dump(s)
 					addrs, err := ifc.Addrs()
 					ips := make([]string, 0)
 					if err == nil {
@@ -114,7 +113,10 @@ func main() {
 							case *net.IPAddr:
 								ip = v.IP
 							}
-							ips = append(ips, ip.String())
+							//spew.Dump(addr, ip)
+							if ip.To4() != nil {
+								ips = append(ips, ip.String())
+							}
 						}
 					}
 					return outputs.Pango(
