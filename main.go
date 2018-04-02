@@ -140,10 +140,10 @@ func main() {
 					}
 					return outputs.Pango(
 						fontawesome.Icon("file_upload"),
-						spacer, pango.Textf("%5s", s.Tx.SI()),
+						spacer, pango.Textf("%7s", s.Tx.SI()),
 						pango.Span(" ", pango.Small),
 						fontawesome.Icon("file_download"),
-						spacer, pango.Textf("%5s", s.Rx.SI()),
+						spacer, pango.Textf("%7s", s.Rx.SI()),
 						spacer, pango.Textf("%s", ifc.Name),
 						spacer, pango.Textf("%s", strings.Join(ips, "|")),
 					)
