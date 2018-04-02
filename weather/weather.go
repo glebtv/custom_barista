@@ -1,10 +1,9 @@
 package weather
 
 import (
-	"os/user"
-	"path/filepath"
 	"time"
 
+	"github.com/glebtv/custom_barista/utils"
 	"github.com/soumya92/barista/bar"
 	"github.com/soumya92/barista/modules/weather"
 	"github.com/soumya92/barista/modules/weather/openweathermap"
@@ -13,19 +12,7 @@ import (
 	"github.com/soumya92/barista/pango/icons/typicons"
 )
 
-var spacer = pango.Span(" ", pango.XXSmall)
-
-func home(path string) string {
-	usr, err := user.Current()
-	if err != nil {
-		panic(err)
-	}
-	return filepath.Join(usr.HomeDir, path)
-}
-
 func Get() weather.Module {
-	typicons.Load(home(".fonts/typicons"))
-
 	// Weather information comes from OpenWeatherMap.
 	// https://openweathermap.org/api.
 	wthr := weather.New(
@@ -72,7 +59,7 @@ func Get() weather.Module {
 			iconName = "weather-" + iconName
 		}
 		return outputs.Pango(
-			typicons.Icon(iconName), spacer,
+			typicons.Icon(iconName), utils.Spacer,
 			pango.Textf("%d℃", w.Temperature.C()),
 			//pango.Span(" (provided by ", w.Attribution, ")", pango.XSmall),
 		)

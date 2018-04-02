@@ -1,10 +1,9 @@
 package temp
 
 import (
-	"os/user"
-	"path/filepath"
 	"time"
 
+	"github.com/glebtv/custom_barista/utils"
 	"github.com/soumya92/barista/bar"
 	"github.com/soumya92/barista/colors"
 	"github.com/soumya92/barista/modules/cputemp"
@@ -13,19 +12,7 @@ import (
 	"github.com/soumya92/barista/pango/icons/material"
 )
 
-var spacer = pango.Span(" ", pango.XXSmall)
-
-func home(path string) string {
-	usr, err := user.Current()
-	if err != nil {
-		panic(err)
-	}
-	return filepath.Join(usr.HomeDir, path)
-}
-
 func Get() cputemp.Module {
-	material.Load(home("material-design-icons"))
-
 	temp := cputemp.DefaultZone().
 		RefreshInterval(2 * time.Second).
 		UrgentWhen(func(temp cputemp.Temperature) bool {
@@ -43,7 +30,7 @@ func Get() cputemp.Module {
 		}).
 		OutputFunc(func(temp cputemp.Temperature) bar.Output {
 			return outputs.Pango(
-				material.Icon("build"), spacer,
+				material.Icon("build"), utils.Spacer,
 				pango.Textf("%2d℃", temp.C()),
 			)
 		})
