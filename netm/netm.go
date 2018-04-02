@@ -28,7 +28,16 @@ func AddTo(modules []bar.Module) []bar.Module {
 			net := netspeed.New(ift.Name).
 				RefreshInterval(2 * time.Second).
 				OutputFunc(func(s netspeed.Speeds) bar.Output {
+					// to update flags
+					ift, err := net.InterfaceByName(ift.Name)
+					if err != nil {
+						return outputs.Error(err)
+					}
 					addrs, err := ift.Addrs()
+					if err != nil {
+						return outputs.Error(err)
+					}
+
 					up := ift.Flags&net.FlagUp != 0
 					var up_text string
 					if up {
