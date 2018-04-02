@@ -64,10 +64,10 @@ func AddTo(modules []bar.Module) []bar.Module {
 					return outputs.Pango(
 						utils.Spacer, pango.Textf("%s", ift.Name),
 						utils.Spacer, upSeg,
-						material.Icon("file_upload"),
+						material.Icon("file-upload"),
 						utils.Spacer, pango.Textf("%7s", s.Tx.SI()),
 						pango.Span(" ", pango.Small),
-						material.Icon("file_download"),
+						material.Icon("file-download"),
 						utils.Spacer, pango.Textf("%7s", s.Rx.SI()),
 						utils.Spacer, pango.Textf("%s", strings.Join(ips, "|")),
 					)

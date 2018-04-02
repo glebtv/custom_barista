@@ -23,7 +23,7 @@ import (
 )
 
 func main() {
-	material.Load(utils.Home("material-design-icons"))
+	material.Load(utils.Home(".fonts/material"))
 	typicons.Load(utils.Home(".fonts/typicons"))
 
 	colors.LoadFromMap(map[string]string{
