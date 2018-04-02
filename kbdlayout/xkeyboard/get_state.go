@@ -39,7 +39,6 @@ func GetStateUnchecked(c *xgb.Conn, deviceSpec uint16) GetStateCookie {
 type GetStateReply struct {
 	Sequence         uint16 // sequence number of the request for this reply
 	Length           uint32 // number of bytes in this reply
-	Type             byte
 	DeviceId         byte
 	Mods             byte
 	BaseMods         byte
@@ -73,9 +72,6 @@ func (cook GetStateCookie) Reply() (*GetStateReply, error) {
 func getStateReply(buf []byte) *GetStateReply {
 	v := new(GetStateReply)
 	b := 1 // skip reply determinant
-
-	v.Type = buf[b]
-	b += 1
 
 	v.Sequence = xgb.Get16(buf[b:])
 	b += 2

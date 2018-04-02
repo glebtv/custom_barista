@@ -45,10 +45,22 @@ func GetNames(c *xgb.Conn, which uint32) GetNamesCookie {
 
 // GetNamesReply represents the data returned from a GetNames request.
 type GetNamesReply struct {
-	Sequence uint16 // sequence number of the request for this reply
-	Length   uint32 // number of bytes in this reply
-	//MajorVersion byte
-	//MinorVersion uint16
+	DeviceId     byte
+	Sequence     uint16 // sequence number of the request for this reply
+	Length       uint32 // number of bytes in this reply
+	Which        uint32
+	MinKeyCode   byte
+	MaxKeyCode   byte
+	NTypes       byte
+	GroupNames   byte
+	VirtualMods  uint16
+	FirstKey     byte
+	NKeys        byte
+	Indicators   uint32
+	NRadioGroups byte
+	NKeyAliases  byte
+	NKTLevels    uint16
+	ValueList    uint32
 }
 
 // Reply blocks and returns the reply data for a GetNames request.
@@ -66,9 +78,9 @@ func (cook GetNamesCookie) Reply() (*GetNamesReply, error) {
 // getNamesReply reads a byte slice into a GetNamesReply value.
 func getNamesReply(buf []byte) *GetNamesReply {
 	v := new(GetNamesReply)
-	b := 1 // skip reply determinant
+	b := 1
 
-	//v.MajorVersion = buf[b]
+	v.DeviceId = buf[b]
 	b += 1
 
 	v.Sequence = xgb.Get16(buf[b:])
@@ -77,8 +89,50 @@ func getNamesReply(buf []byte) *GetNamesReply {
 	v.Length = xgb.Get32(buf[b:]) // 4-byte units
 	b += 4
 
-	//v.MinorVersion = xgb.Get16(buf[b:])
-	//b += 2
+	v.Which = xgb.Get32(buf[b:]) // 4-byte units
+	b += 4
+
+	v.MinKeyCode = buf[b]
+	b += 1
+
+	v.MaxKeyCode = buf[b]
+	b += 1
+
+	v.NTypes = buf[b]
+	b += 1
+
+	v.GroupNames = buf[b]
+	b += 1
+
+	v.VirtualMods = xgb.Get16(buf[b:])
+	b += 2
+
+	v.FirstKey = buf[b]
+	b += 1
+
+	v.NKeys = buf[b]
+	b += 1
+
+	v.Indicators = xgb.Get32(buf[b:])
+	b += 4
+
+	v.NRadioGroups = buf[b]
+	b += 1
+
+	v.NKeyAliases = buf[b]
+	b += 1
+
+	v.NKTLevels = xgb.Get16(buf[b:])
+	b += 2
+
+	//pad3 b32
+	b += 4
+
+	v.ValueList = xgb.Get32(buf[b:]) // 4-byte units
+
+	//fmt.Printf("value list: %x", v.ValueList)
+
+	//spew.Dump(buf[b:])
 
 	return v
 }

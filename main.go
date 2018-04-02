@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/glebtv/custom_barista/kbdlayout"
 	"github.com/glebtv/custom_barista/temp"
 	"github.com/glebtv/custom_barista/weather"
@@ -101,6 +102,7 @@ func main() {
 	net := netspeed.New("enp4s0").
 		RefreshInterval(2 * time.Second).
 		OutputFunc(func(s netspeed.Speeds) bar.Output {
+			spew.Dump(s)
 			return outputs.Pango(
 				fontawesome.Icon("file_upload"), spacer, pango.Textf("%5s", s.Tx.SI()),
 				pango.Span(" ", pango.Small),

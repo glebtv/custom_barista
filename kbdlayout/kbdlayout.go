@@ -69,10 +69,22 @@ func init() {
 func GetLayout() (string, uint8, error) {
 	conn := X.Conn()
 
-	//spew.Dump(vresp.Reply())
+	nresp := xkeyboard.GetNames(X.Conn(), xkeyboard.XkbSymbolsNameMask)
+	//log.Println("reply:")
+	//spew.Dump(nresp)
+	repl, err := nresp.Reply()
+	if err != nil {
+		return "", 0, err
+	}
 
-	// GetAtomName for atom=0x1f2 (symbolsName atom)
-	anresp := xproto.GetAtomName(conn, xproto.Atom(0x1f2))
+	//spew.Dump(vresp.Reply())
+	//atom, err := xprop.Atom(X, "THE_ATOM_NAME", false)
+	//if err == nil {
+	//println("The atom number: ", atom.Atom)
+	//}
+
+	// GetAtomName for atom=0x1f2 (kbdDescPtr->names->symbols atom)
+	anresp := xproto.GetAtomName(conn, xproto.Atom(repl.ValueList))
 	anreply, err := anresp.Reply()
 	if err != nil {
 		return "", 0, err
@@ -89,7 +101,12 @@ func GetLayout() (string, uint8, error) {
 	}
 	//spew.Dump(sreply)
 	//log.Println("getstate reply, group:", sreply.Group)
-	Layout = names[sreply.Group]
+	if len(names)-1 < int(sreply.Group) {
+		log.Println("no group number", sreply.Group, "found in layout names", names)
+		Layout = "?"
+	} else {
+		Layout = names[sreply.Group]
+	}
 	Mods = sreply.LatchedMods
 	Group = sreply.Group
 	return Layout, Mods, nil
