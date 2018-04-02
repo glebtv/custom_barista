@@ -5,6 +5,8 @@
 package main
 
 import (
+	"net"
+	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
@@ -19,7 +21,6 @@ import (
 	"github.com/soumya92/barista/colors"
 	"github.com/soumya92/barista/modules/battery"
 	"github.com/soumya92/barista/modules/clock"
-	"github.com/soumya92/barista/modules/group"
 	"github.com/soumya92/barista/modules/meminfo"
 	"github.com/soumya92/barista/modules/netspeed"
 	"github.com/soumya92/barista/modules/sysinfo"
@@ -52,18 +53,7 @@ func main() {
 	})
 	// pacin gsimplecal
 
-	localtime := clock.New().OutputFunc(func(now time.Time) bar.Output {
-		return outputs.Pango(
-			material.Icon("today", colors.Scheme("dim-icon")),
-			now.Format("2006-01-02 "),
-			material.Icon("access-time", colors.Scheme("dim-icon")),
-			now.Format("15:04:05"),
-		)
-	}).OnClick(func(e bar.Event) {
-		if e.Button == bar.ButtonLeft {
-			exec.Command("gsimplecal").Run()
-		}
-	})
+	modules := make([]bar.Module, 0)
 
 	loadAvg := sysinfo.New().OutputFunc(func(s sysinfo.Info) bar.Output {
 		out := outputs.Textf("%0.2f %0.2f", s.Loads[0], s.Loads[2])
@@ -82,6 +72,7 @@ func main() {
 		}
 		return out
 	})
+	modules = append(modules, loadAvg)
 
 	freeMem := meminfo.New().OutputFunc(func(m meminfo.Info) bar.Output {
 		out := outputs.Pango(material.Icon("memory"), m.Available().IEC())
@@ -98,19 +89,62 @@ func main() {
 		}
 		return out
 	})
+	modules = append(modules, freeMem)
 
-	net := netspeed.New("enp4s0").
-		RefreshInterval(2 * time.Second).
-		OutputFunc(func(s netspeed.Speeds) bar.Output {
-			spew.Dump(s)
-			return outputs.Pango(
-				fontawesome.Icon("file_upload"), spacer, pango.Textf("%5s", s.Tx.SI()),
-				pango.Span(" ", pango.Small),
-				fontawesome.Icon("file_download"), spacer, pango.Textf("%5s", s.Rx.SI()),
-			)
-		})
+	ifs, err := net.Interfaces()
+	if err != nil {
+		panic(err)
+	}
+	for _, ifc := range ifs {
+		//spew.Dump(ifc)
+		if strings.HasPrefix(ifc.Name, "en") || strings.HasPrefix(ifc.Name, "wl") {
+			net := netspeed.New(ifc.Name).
+				RefreshInterval(2 * time.Second).
+				OutputFunc(func(s netspeed.Speeds) bar.Output {
+					spew.Dump(s)
+					addrs, err := ifc.Addrs()
+					ips := make([]string, 0)
+					if err == nil {
+						// handle err
+						for _, addr := range addrs {
+							var ip net.IP
+							switch v := addr.(type) {
+							case *net.IPNet:
+								ip = v.IP
+							case *net.IPAddr:
+								ip = v.IP
+							}
+							ips = append(ips, ip.String())
+						}
+					}
+					return outputs.Pango(
+						pango.Textf("%s", ifc.Name), spacer,
+						pango.Textf("%s", strings.Join(ips, "|")), spacer,
+						fontawesome.Icon("file_upload"), spacer, pango.Textf("%5s", s.Tx.SI()),
+						pango.Span(" ", pango.Small),
+						fontawesome.Icon("file_download"), spacer, pango.Textf("%5s", s.Rx.SI()),
+					)
+				})
+			modules = append(modules, net)
+		}
+		if strings.HasPrefix(ifc.Name, "wl") {
+			wlan := wlan.New("wlp3s0")
+			modules = append(modules, wlan)
+		}
+	}
 
-	wlan := wlan.New("wlp3s0")
+	//net := netspeed.New("enp4s0").
+	//RefreshInterval(2 * time.Second).
+	//OutputFunc(func(s netspeed.Speeds) bar.Output {
+	//spew.Dump(s)
+	//return outputs.Pango(
+	//fontawesome.Icon("file_upload"), spacer, pango.Textf("%5s", s.Tx.SI()),
+	//pango.Span(" ", pango.Small),
+	//fontawesome.Icon("file_download"), spacer, pango.Textf("%5s", s.Rx.SI()),
+	//)
+	//})
+
+	//wlan := wlan.New("wlp3s0")
 
 	layout := kbdlayout.New().OutputFunc(func(i kbdlayout.Info) bar.Output {
 		out := make(bar.Output, 0)
@@ -130,17 +164,28 @@ func main() {
 		return out
 	})
 
-	g := group.Collapsing()
+	if _, err := os.Stat("/sys/class/power_supply/BAT0"); err == nil {
+		modules = append(modules, battery.New("BAT0"))
+	}
 
-	panic(bar.Run(
-		layout,
-		battery.New("BAT0"),
-		g.Add(net),
-		g.Add(wlan),
-		g.Add(temp.Get()),
-		g.Add(freeMem),
-		g.Add(loadAvg),
-		weather.Get(),
-		localtime,
-	))
+	modules = append(modules, temp.Get())
+	modules = append(modules, layout)
+	modules = append(modules, weather.Get())
+
+	localtime := clock.New().OutputFunc(func(now time.Time) bar.Output {
+		return outputs.Pango(
+			material.Icon("today", colors.Scheme("dim-icon")),
+			now.Format("2006-01-02 "),
+			material.Icon("access-time", colors.Scheme("dim-icon")),
+			now.Format("15:04:05"),
+		)
+	}).OnClick(func(e bar.Event) {
+		if e.Button == bar.ButtonLeft {
+			exec.Command("gsimplecal").Run()
+		}
+	})
+
+	modules = append(modules, localtime)
+
+	panic(bar.Run(modules...))
 }
