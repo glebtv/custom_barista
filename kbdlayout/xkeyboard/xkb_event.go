@@ -48,6 +48,7 @@ func XkbEventNew(buf []byte) xgb.Event {
 	v.Type = buf[b]
 	b += 1
 
+	// TODO: THIS IS PROBABLY NOT CORRECTLY PARSED
 	v.Sequence = xgb.Get16(buf[b:])
 	b += 2
 
@@ -85,7 +86,9 @@ func XkbEventNew(buf []byte) xgb.Event {
 	}
 	b += 1
 
-	b += 1 // padding
+	//b += 1 // padding
+
+	//log.Println(v.String())
 
 	return v
 }

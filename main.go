@@ -54,6 +54,25 @@ func main() {
 
 	modules := make([]bar.Module, 0)
 
+	layout := kbdlayout.New().OutputFunc(func(i kbdlayout.Info) bar.Output {
+		out := make(bar.Output, 0)
+		la := strings.ToUpper(i.Layout)
+		lseg := bar.NewSegment(la)
+		if la != "US" {
+			lseg.Color(colors.Scheme("bad"))
+		}
+		out = append(out, lseg)
+		for _, mod := range i.GetMods() {
+			s := bar.NewSegment(mod)
+			if mod == "CAPS" {
+				s.Color(colors.Scheme("bad"))
+			}
+			out = append(out, s)
+		}
+		return out
+	})
+	modules = append(modules, layout)
+
 	loadAvg := sysinfo.New().OutputFunc(func(s sysinfo.Info) bar.Output {
 		out := outputs.Textf("%0.2f %0.2f", s.Loads[0], s.Loads[2])
 		// Load averages are unusually high for a few minutes after boot.
@@ -120,11 +139,13 @@ func main() {
 						}
 					}
 					return outputs.Pango(
-						pango.Textf("%s", ifc.Name), spacer,
-						pango.Textf("%s", strings.Join(ips, "|")), spacer,
-						fontawesome.Icon("file_upload"), spacer, pango.Textf("%5s", s.Tx.SI()),
+						fontawesome.Icon("file_upload"),
+						spacer, pango.Textf("%5s", s.Tx.SI()),
 						pango.Span(" ", pango.Small),
-						fontawesome.Icon("file_download"), spacer, pango.Textf("%5s", s.Rx.SI()),
+						fontawesome.Icon("file_download"),
+						spacer, pango.Textf("%5s", s.Rx.SI()),
+						spacer, pango.Textf("%s", ifc.Name),
+						spacer, pango.Textf("%s", strings.Join(ips, "|")),
 					)
 				})
 			modules = append(modules, net)
@@ -135,43 +156,11 @@ func main() {
 		}
 	}
 
-	//net := netspeed.New("enp4s0").
-	//RefreshInterval(2 * time.Second).
-	//OutputFunc(func(s netspeed.Speeds) bar.Output {
-	//spew.Dump(s)
-	//return outputs.Pango(
-	//fontawesome.Icon("file_upload"), spacer, pango.Textf("%5s", s.Tx.SI()),
-	//pango.Span(" ", pango.Small),
-	//fontawesome.Icon("file_download"), spacer, pango.Textf("%5s", s.Rx.SI()),
-	//)
-	//})
-
-	//wlan := wlan.New("wlp3s0")
-
-	layout := kbdlayout.New().OutputFunc(func(i kbdlayout.Info) bar.Output {
-		out := make(bar.Output, 0)
-		la := strings.ToUpper(i.Layout)
-		lseg := bar.NewSegment(la)
-		if la != "US" {
-			lseg.Color(colors.Scheme("bad"))
-		}
-		out = append(out, lseg)
-		for _, mod := range i.GetMods() {
-			s := bar.NewSegment(mod)
-			if mod == "CAPS" {
-				s.Color(colors.Scheme("bad"))
-			}
-			out = append(out, s)
-		}
-		return out
-	})
-
 	if _, err := os.Stat("/sys/class/power_supply/BAT0"); err == nil {
 		modules = append(modules, battery.New("BAT0"))
 	}
 
 	modules = append(modules, temp.Get())
-	modules = append(modules, layout)
 	modules = append(modules, weather.Get())
 
 	localtime := clock.New().OutputFunc(func(now time.Time) bar.Output {

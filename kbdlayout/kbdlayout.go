@@ -107,6 +107,7 @@ func GetLayout() (string, uint8, error) {
 	} else {
 		Layout = names[sreply.Group]
 	}
+	//spew.Dump(sreply)
 	Mods = sreply.LatchedMods
 	Group = sreply.Group
 	return Layout, Mods, nil
