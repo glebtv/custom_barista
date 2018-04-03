@@ -62,7 +62,6 @@ func main() {
 		log.Fatal(err)
 	}
 	cmd := exec.Command(path, "/")
-	cmd.Env = os.Environ()
 	out, err := cmd.Output()
 	if err != nil {
 		log.Fatal(err)
