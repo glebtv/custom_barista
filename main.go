@@ -80,9 +80,9 @@ func main() {
 				//spew.Dump(io)
 				return outputs.Pango(
 					pango.Textf("io"),
-					pango.Textf("%7s", io.Input.IEC()),
+					pango.Textf("%8s", io.Input.IEC()),
 					utils.Spacer,
-					pango.Textf("%7s", io.Output.IEC()),
+					pango.Textf("%8s", io.Output.IEC()),
 				)
 			})
 
