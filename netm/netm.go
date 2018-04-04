@@ -70,16 +70,26 @@ func AddTo(modules []bar.Module) []bar.Module {
 						}
 						//log.Println("addrs:", ift.Name, ips)
 					}
-					return outputs.Pango(
+
+					things := []interface{}{
 						pango.Textf("%s", ift.Name),
-						utils.Spacer, upSeg,
-						material.Icon("file-upload"),
-						utils.Spacer, pango.Textf("%8s", s.Tx.IEC()),
-						pango.Span(" ", pango.Small),
-						material.Icon("file-download"),
-						utils.Spacer, pango.Textf("%8s", s.Rx.IEC()),
-						utils.Spacer, pango.Textf("%s", strings.Join(ips, "|")),
-					)
+						utils.Spacer,
+						upSeg,
+					}
+
+					if up {
+						upthings := []interface{}{
+							material.Icon("file-upload"),
+							utils.Spacer, pango.Textf("%8s", s.Tx.IEC()),
+							pango.Span(" ", pango.Small),
+							material.Icon("file-download"),
+							utils.Spacer, pango.Textf("%8s", s.Rx.IEC()),
+							utils.Spacer, pango.Textf("%s", strings.Join(ips, "|")),
+						}
+						things = append(things, upthings...)
+					}
+
+					return outputs.Pango(things...)
 				})
 			modules = append(modules, net)
 		}
