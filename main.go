@@ -15,6 +15,7 @@ import (
 	"github.com/glebtv/custom_barista/load"
 	"github.com/glebtv/custom_barista/ltime"
 	"github.com/glebtv/custom_barista/mem"
+	"github.com/glebtv/custom_barista/music"
 	"github.com/glebtv/custom_barista/netm"
 	"github.com/glebtv/custom_barista/temp"
 	"github.com/glebtv/custom_barista/utils"
@@ -47,6 +48,8 @@ func main() {
 
 	modules = append(modules, kbdlayout.Get())
 
+	modules = append(modules, music.Get())
+
 	modules = append(modules, counter.New("C:%d"))
 
 	//fs := syscall.Statfs_t{}
@@ -70,11 +73,10 @@ func main() {
 		info := strings.Fields(parts[1])
 		dn := strings.Split(info[1], "/")
 		name := dn[len(dn)-1]
-		disk := diskio.
-			New().
-			RefreshInterval(2 * time.Second)
 
-		sda := disk.Disk(name).
+		diskio.RefreshInterval(2 * time.Second)
+
+		sda := diskio.Disk(name).
 			OutputFunc(func(io diskio.IO) bar.Output {
 				//spew.Dump(io)
 				return outputs.Pango(
