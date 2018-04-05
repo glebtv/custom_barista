@@ -48,7 +48,8 @@ func main() {
 
 	modules = append(modules, kbdlayout.Get())
 
-	modules = append(modules, music.Get())
+	modules = append(modules, music.Get("google-play-music-desktop-player"))
+	modules = append(modules, music.Get("DeaDBeeF"))
 
 	modules = append(modules, counter.New("C:%d"))
 

@@ -60,11 +60,11 @@ func mediaFormatFunc(m media.Info) bar.Output {
 	return outputs.Pango(iconAndPosition, utils.Spacer, title, " - ", artist)
 }
 
-func Get() bar.Module {
+func Get(player string) bar.Module {
 	// You need to know your dbus\mrpis player name
 	// find your player name via playerctl -l
 	// https://github.com/acrisci/playerctl
 	// for deadbeef use this plugin:
 	// https://aur.archlinux.org/packages/deadbeef-mpris2-plugin/
-	return media.New("DeaDBeeF").OutputFunc(mediaFormatFunc)
+	return media.New(player).OutputFunc(mediaFormatFunc)
 }
