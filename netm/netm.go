@@ -80,10 +80,12 @@ func AddTo(modules []bar.Module) []bar.Module {
 					if up {
 						upthings := []interface{}{
 							material.Icon("file-upload"),
-							utils.Spacer, pango.Textf("%8s", s.Tx.IEC()),
+							utils.Spacer,
+							pango.Textf("%8s", outputs.Byterate(s.Tx)),
 							pango.Span(" ", pango.Small),
 							material.Icon("file-download"),
-							utils.Spacer, pango.Textf("%8s", s.Rx.IEC()),
+							utils.Spacer,
+							pango.Textf("%8s", outputs.Byterate(s.Tx)),
 							utils.Spacer, pango.Textf("%s", strings.Join(ips, "|")),
 						}
 						things = append(things, upthings...)

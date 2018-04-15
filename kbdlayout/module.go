@@ -34,12 +34,20 @@ type Module struct {
 	outputFunc func(Info) bar.Output
 }
 
+type KbdOut struct {
+	Seg []bar.Segment
+}
+
+func (k KbdOut) Segments() []bar.Segment {
+	return k.Seg
+}
+
 var DefaultOutputFunc = func(i Info) bar.Output {
-	out := make(bar.Output, 0)
-	lseg := bar.NewSegment(strings.ToUpper(i.Layout))
-	out = append(out, lseg)
+	out := KbdOut{}
+	lseg := bar.TextSegment(strings.ToUpper(i.Layout))
+	out.Seg = append(out.Seg, lseg)
 	for _, mod := range i.GetMods() {
-		out = append(out, bar.NewSegment(mod))
+		out.Seg = append(out.Seg, bar.TextSegment(mod))
 	}
 	return out
 }

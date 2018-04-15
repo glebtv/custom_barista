@@ -9,19 +9,19 @@ import (
 
 func Get() bar.Module {
 	return New().OutputFunc(func(i Info) bar.Output {
-		out := make(bar.Output, 0)
+		out := KbdOut{}
 		la := strings.ToUpper(i.Layout)
-		lseg := bar.NewSegment(la)
+		lseg := bar.PangoSegment(la)
 		if la != "US" {
 			lseg.Color(colors.Scheme("bad"))
 		}
-		out = append(out, lseg)
+		out.Seg = append(out.Seg, lseg)
 		for _, mod := range i.GetMods() {
-			s := bar.NewSegment(mod)
+			s := bar.PangoSegment(mod)
 			if mod == "CAPS" {
 				s.Color(colors.Scheme("bad"))
 			}
-			out = append(out, s)
+			out.Seg = append(out.Seg, s)
 		}
 		return out
 	})

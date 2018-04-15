@@ -59,7 +59,7 @@ func main() {
 	//panic(err)
 	//}
 
-	modules = append(modules, diskspace.New("/").OutputTemplate(outputs.TextTemplate(`FREE / {{.Free.In "GB" | printf "%.2f"}} GB`)))
+	modules = append(modules, diskspace.New("/").OutputTemplate(outputs.TextTemplate(`FREE / {{.Free.Gigabytes | printf "%.2f"}} GB`)))
 
 	path, err := exec.LookPath("findmnt")
 	if err != nil {
@@ -82,9 +82,9 @@ func main() {
 				//spew.Dump(io)
 				return outputs.Pango(
 					pango.Textf("io"),
-					pango.Textf("%8s", io.Input.IEC()),
+					pango.Textf("%8s", outputs.IByterate(io.Input)),
 					utils.Spacer,
-					pango.Textf("%8s", io.Output.IEC()),
+					pango.Textf("%8s", outputs.IByterate(io.Output)),
 				)
 			})
 

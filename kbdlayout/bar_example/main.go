@@ -6,7 +6,8 @@ import (
 )
 
 func main() {
-	layout := kbdlayout.New()
+	//layout := kbdlayout.New()
+	layout := kbdlayout.Get()
 
 	panic(bar.Run(
 		layout,

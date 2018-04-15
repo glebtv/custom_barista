@@ -8,10 +8,11 @@ import (
 	"github.com/soumya92/barista/pango/icons/material"
 )
 
+// Get Create a module
 func Get() bar.Module {
 	return meminfo.New().OutputFunc(func(m meminfo.Info) bar.Output {
-		out := outputs.Pango(material.Icon("memory"), m.Available().IEC())
-		freeGigs := m.Available().In("GiB")
+		out := outputs.Pango(material.Icon("memory"),  outputs.IBytesize(m.Available()))
+		freeGigs := m.Available().Gigabytes()
 		switch {
 		case freeGigs < 0.5:
 			out.Urgent(true)
