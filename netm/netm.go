@@ -96,7 +96,7 @@ func AddTo(modules []bar.Module) []bar.Module {
 			modules = append(modules, net)
 		}
 		if strings.HasPrefix(ifc.Name, "wl") {
-			wlan := wlan.New("wlp3s0")
+			wlan := wlan.New(ifc.Name)
 			modules = append(modules, wlan)
 		}
 	}
