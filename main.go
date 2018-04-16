@@ -81,7 +81,7 @@ func main() {
 			OutputFunc(func(io diskio.IO) bar.Output {
 				//spew.Dump(io)
 				return outputs.Pango(
-					pango.Textf("io"),
+					pango.Textf("io "),
 					pango.Textf("%9s", outputs.IByterate(io.Input)),
 					utils.Spacer,
 					pango.Textf("%9s", outputs.IByterate(io.Output)),
