@@ -20,6 +20,7 @@ import (
 	"github.com/glebtv/custom_barista/temp"
 	"github.com/glebtv/custom_barista/utils"
 	"github.com/glebtv/custom_barista/weather"
+	"github.com/soumya92/barista"
 	"github.com/soumya92/barista/bar"
 	"github.com/soumya92/barista/colors"
 	"github.com/soumya92/barista/modules/battery"
@@ -106,5 +107,5 @@ func main() {
 
 	modules = append(modules, ltime.Get())
 
-	panic(bar.Run(modules...))
+	panic(barista.Run(modules...))
 }
