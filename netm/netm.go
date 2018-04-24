@@ -85,7 +85,7 @@ func AddTo(modules []bar.Module) []bar.Module {
 							pango.Span(" ", pango.Small),
 							material.Icon("file-download"),
 							utils.Spacer,
-							pango.Textf("%8s", outputs.Byterate(s.Tx)),
+							pango.Textf("%8s", outputs.Byterate(s.Rx)),
 							utils.Spacer, pango.Textf("%s", strings.Join(ips, "|")),
 						}
 						things = append(things, upthings...)
