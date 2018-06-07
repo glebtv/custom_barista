@@ -55,7 +55,7 @@ func mediaFormatFunc(m media.Info) bar.Output {
 			formatMediaTime(m.Length),
 		)
 	} else {
-		iconAndPosition = fontawesome.Icon("music", colors.Hex("#f70"))
+		iconAndPosition = fontawesome.Icon("music", pango.Color(colors.Hex("#f70"))...)
 	}
 	return outputs.Pango(iconAndPosition, utils.Spacer, title, " - ", artist)
 }

@@ -2,6 +2,7 @@ package kbdlayout
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/soumya92/barista/bar"
 	"github.com/soumya92/barista/base"
@@ -9,6 +10,8 @@ import (
 
 const NUM_LOCK = 16
 const CAPS_LOCK = 2
+
+var lock sync.Mutex
 
 type Info struct {
 	// Layout code
@@ -30,15 +33,16 @@ func (i Info) GetMods() []string {
 }
 
 type Module struct {
-	*base.Base
+	base.SimpleClickHandler
+	ch         base.Channel
 	outputFunc func(Info) bar.Output
 }
 
 type KbdOut struct {
-	Seg []bar.Segment
+	Seg []*bar.Segment
 }
 
-func (k KbdOut) Segments() []bar.Segment {
+func (k KbdOut) Segments() []*bar.Segment {
 	return k.Seg
 }
 
@@ -49,43 +53,42 @@ var DefaultOutputFunc = func(i Info) bar.Output {
 	for _, mod := range i.GetMods() {
 		out.Seg = append(out.Seg, bar.TextSegment(mod))
 	}
-	return out
+	return bar.Output(out)
+}
+
+func (m *Module) Stream() <-chan bar.Output {
+	m.ch = base.NewChannel()
+	return m.ch
 }
 
 // New constructs an instance of the clock module with a default configuration.
 func New() *Module {
 	m := &Module{
-		Base:       base.New(),
 		outputFunc: DefaultOutputFunc,
 	}
 	// Default output template
-	m.OnUpdate(m.update)
 
 	Subscribe(func(layout string, mods uint8) {
 		i := Info{Layout: layout, Mods: mods}
-		m.Output(m.outputFunc(i))
+		m.ch.Output(m.outputFunc(i))
 	})
 
 	return m
 }
 
 func (m *Module) OutputFunc(outputFunc func(Info) bar.Output) *Module {
-	m.Lock()
-	defer m.UnlockAndUpdate()
 	m.outputFunc = outputFunc
 	return m
 }
 
 func (m *Module) update() {
-	m.Lock()
 	layout, mods, err := GetLayout()
 	if err != nil {
 		layout = err.Error()
 		mods = 0
 	}
-	m.Unlock()
 	i := Info{Layout: layout, Mods: mods}
-	m.Output(m.outputFunc(i))
+	m.ch.Output(m.outputFunc(i))
 }
 
 func (m *Module) Click(e bar.Event) {
@@ -93,5 +96,4 @@ func (m *Module) Click(e bar.Event) {
 		SwitchToNext()
 		m.update()
 	}
-	m.Base.Click(e)
 }

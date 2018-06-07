@@ -47,9 +47,9 @@ func AddTo(modules []bar.Module) []bar.Module {
 					}
 					var upSeg pango.Node
 					if up {
-						upSeg = pango.Span(colors.Scheme("good"), up_text)
+						upSeg = pango.Span(pango.Color(colors.Scheme("good")), up_text)
 					} else {
-						upSeg = pango.Span(colors.Scheme("bad"), up_text)
+						upSeg = pango.Span(pango.Color(colors.Scheme("bad")), up_text)
 					}
 
 					ips := make([]string, 0)

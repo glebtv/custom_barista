@@ -78,7 +78,7 @@ func main() {
 
 		diskio.RefreshInterval(2 * time.Second)
 
-		sda := diskio.Disk(name).
+		sda := diskio.New(name).
 			OutputFunc(func(io diskio.IO) bar.Output {
 				//spew.Dump(io)
 				return outputs.Pango(

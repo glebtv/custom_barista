@@ -12,7 +12,7 @@ import (
 	"github.com/soumya92/barista/pango/icons/typicons"
 )
 
-func Get() weather.Module {
+func Get() *weather.Module {
 	// Weather information comes from OpenWeatherMap.
 	// https://openweathermap.org/api.
 	wthr := weather.New(

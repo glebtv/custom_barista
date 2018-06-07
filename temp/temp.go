@@ -1,6 +1,7 @@
 package temp
 
 import (
+	"image/color"
 	"time"
 
 	"github.com/glebtv/custom_barista/utils"
@@ -13,20 +14,20 @@ import (
 	"github.com/soumya92/barista/pango/icons/material"
 )
 
-func Get() cputemp.Module {
+func Get() *cputemp.Module {
 	temp := cputemp.DefaultZone().
 		RefreshInterval(2 * time.Second).
 		UrgentWhen(func(temp unit.Temperature) bool {
 			return temp.Celsius() > 90
 		}).
-		OutputColor(func(temp unit.Temperature) bar.Color {
+		OutputColor(func(temp unit.Temperature) color.Color {
 			switch {
 			case temp.Celsius() > 70:
 				return colors.Scheme("bad")
 			case temp.Celsius() > 60:
 				return colors.Scheme("degraded")
 			default:
-				return colors.Empty()
+				return nil
 			}
 		}).
 		OutputFunc(func(temp unit.Temperature) bar.Output {
