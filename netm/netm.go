@@ -44,11 +44,11 @@ func AddTo(modules []bar.Module) []bar.Module {
 					} else {
 						up_text = "DOWN"
 					}
-					var upSeg *bar.Segment
+					var upSeg *pango.Node
 					if up {
-						upSeg = outputs.Text(up_text).Color(colors.Scheme("good"))
+						upSeg = pango.Text(up_text).Color(colors.Scheme("good"))
 					} else {
-						upSeg = outputs.Text(up_text).Color(colors.Scheme("bad"))
+						upSeg = pango.Text(up_text).Color(colors.Scheme("bad"))
 					}
 
 					ips := make([]string, 0)
@@ -94,6 +94,7 @@ func AddTo(modules []bar.Module) []bar.Module {
 				})
 			modules = append(modules, net)
 		}
+
 		if strings.HasPrefix(ifc.Name, "wl") {
 			wlan := wlan.New(ifc.Name)
 			modules = append(modules, wlan)
