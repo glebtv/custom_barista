@@ -1,6 +1,6 @@
 ## Custom Barista config
 
-This is my custom config for [barista](https://github.com/soumya92/barista) i3bar replacement.
+This is my custom config for [barista](https://github.com/soumya92/barista) i3status replacement.
 
 Includes custom keyboard layout module
 
