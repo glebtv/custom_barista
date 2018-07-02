@@ -9,15 +9,14 @@ import (
 	"github.com/soumya92/barista/modules/clock"
 	"github.com/soumya92/barista/outputs"
 	"github.com/soumya92/barista/pango"
-	"github.com/soumya92/barista/pango/icons/material"
 )
 
 func Get() bar.Module {
 	time := clock.Local().OutputFunc(time.Second, func(now time.Time) bar.Output {
 		return outputs.Pango(
-			material.Icon("today", pango.Color(colors.Scheme("dim-icon"))...),
+			pango.Icon("material-today").Color(colors.Scheme("dim-icon")),
 			now.Format("Mon 2006-01-02 "),
-			material.Icon("access-time", pango.Color(colors.Scheme("dim-icon"))...),
+			pango.Icon("material-access-time").Color(colors.Scheme("dim-icon")),
 			now.Format("15:04:05"),
 		)
 	})

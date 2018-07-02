@@ -12,7 +12,6 @@ import (
 	"github.com/soumya92/barista/modules/wlan"
 	"github.com/soumya92/barista/outputs"
 	"github.com/soumya92/barista/pango"
-	"github.com/soumya92/barista/pango/icons/material"
 )
 
 func AddTo(modules []bar.Module) []bar.Module {
@@ -45,11 +44,11 @@ func AddTo(modules []bar.Module) []bar.Module {
 					} else {
 						up_text = "DOWN"
 					}
-					var upSeg pango.Node
+					var upSeg *bar.Segment
 					if up {
-						upSeg = pango.Span(pango.Color(colors.Scheme("good")), up_text)
+						upSeg = outputs.Text(up_text).Color(colors.Scheme("good"))
 					} else {
-						upSeg = pango.Span(pango.Color(colors.Scheme("bad")), up_text)
+						upSeg = outputs.Text(up_text).Color(colors.Scheme("bad"))
 					}
 
 					ips := make([]string, 0)
@@ -79,11 +78,11 @@ func AddTo(modules []bar.Module) []bar.Module {
 
 					if up {
 						upthings := []interface{}{
-							material.Icon("file-upload"),
+							pango.Icon("material-file-upload"),
 							utils.Spacer,
 							pango.Textf("%8s", outputs.Byterate(s.Tx)),
-							pango.Span(" ", pango.Small),
-							material.Icon("file-download"),
+							pango.Text(" ").Small(),
+							pango.Icon("material-file-download"),
 							utils.Spacer,
 							pango.Textf("%8s", outputs.Byterate(s.Rx)),
 							utils.Spacer, pango.Textf("%s", strings.Join(ips, "|")),

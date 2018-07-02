@@ -9,15 +9,13 @@ import (
 	"github.com/soumya92/barista/modules/weather/openweathermap"
 	"github.com/soumya92/barista/outputs"
 	"github.com/soumya92/barista/pango"
-	"github.com/soumya92/barista/pango/icons/typicons"
 )
 
-func Get() *weather.Module {
+func Get(cityId string) *weather.Module {
 	// Weather information comes from OpenWeatherMap.
 	// https://openweathermap.org/api.
 	wthr := weather.New(
-		openweathermap.CityID("524901").Build(),
-		//openweathermap.Zipcode("94043", "US").Build(),
+		openweathermap.CityID(cityId).Build(),
 	).OutputFunc(func(w weather.Weather) bar.Output {
 		iconName := ""
 		switch w.Condition {
@@ -59,9 +57,8 @@ func Get() *weather.Module {
 			iconName = "weather-" + iconName
 		}
 		return outputs.Pango(
-			typicons.Icon(iconName), utils.Spacer,
+			pango.Icon("typecn-"+iconName), utils.Spacer,
 			pango.Textf("%.1f℃", w.Temperature.Celsius()),
-			//pango.Span(" (provided by ", w.Attribution, ")", pango.XSmall),
 		)
 	})
 	return wthr

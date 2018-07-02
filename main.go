@@ -19,6 +19,7 @@ import (
 	"github.com/glebtv/custom_barista/netm"
 	"github.com/glebtv/custom_barista/temp"
 	"github.com/glebtv/custom_barista/utils"
+	"github.com/glebtv/custom_barista/vol"
 	"github.com/glebtv/custom_barista/weather"
 	"github.com/soumya92/barista"
 	"github.com/soumya92/barista/bar"
@@ -103,8 +104,8 @@ func main() {
 	}
 
 	modules = append(modules, temp.Get())
-	modules = append(modules, weather.Get())
-
+	modules = append(modules, weather.Get("524901"))
+	modules = append(modules, vol.Get())
 	modules = append(modules, ltime.Get())
 
 	panic(barista.Run(modules...))

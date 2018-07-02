@@ -11,7 +11,6 @@ import (
 	"github.com/soumya92/barista/modules/cputemp"
 	"github.com/soumya92/barista/outputs"
 	"github.com/soumya92/barista/pango"
-	"github.com/soumya92/barista/pango/icons/material"
 )
 
 func Get() *cputemp.Module {
@@ -32,7 +31,7 @@ func Get() *cputemp.Module {
 		}).
 		OutputFunc(func(temp unit.Temperature) bar.Output {
 			return outputs.Pango(
-				material.Icon("build"), utils.Spacer,
+				pango.Icon("material-build"), utils.Spacer,
 				pango.Textf("%2d℃", int(temp.Celsius())),
 			)
 		})

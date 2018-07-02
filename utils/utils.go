@@ -7,7 +7,7 @@ import (
 	"github.com/soumya92/barista/pango"
 )
 
-var Spacer = pango.Span(" ", pango.XXSmall)
+var Spacer = pango.Text(" ").XXSmall()
 
 func Home(path string) string {
 	usr, err := user.Current()

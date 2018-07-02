@@ -33,8 +33,9 @@ func (i Info) GetMods() []string {
 }
 
 type Module struct {
+	bar.Module
+	bar.Sink
 	base.SimpleClickHandler
-	ch         base.Channel
 	outputFunc func(Info) bar.Output
 }
 
@@ -56,9 +57,10 @@ var DefaultOutputFunc = func(i Info) bar.Output {
 	return bar.Output(out)
 }
 
-func (m *Module) Stream() <-chan bar.Output {
-	m.ch = base.NewChannel()
-	return m.ch
+func (m *Module) Stream(s bar.Sink) {
+	forever := make(chan struct{})
+	m.Sink = s
+	<-forever
 }
 
 // New constructs an instance of the clock module with a default configuration.
@@ -70,7 +72,7 @@ func New() *Module {
 
 	Subscribe(func(layout string, mods uint8) {
 		i := Info{Layout: layout, Mods: mods}
-		m.ch.Output(m.outputFunc(i))
+		m.Sink.Output(m.outputFunc(i))
 	})
 
 	return m
@@ -88,7 +90,7 @@ func (m *Module) update() {
 		mods = 0
 	}
 	i := Info{Layout: layout, Mods: mods}
-	m.ch.Output(m.outputFunc(i))
+	m.Sink.Output(m.outputFunc(i))
 }
 
 func (m *Module) Click(e bar.Event) {

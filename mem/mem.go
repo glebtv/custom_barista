@@ -5,13 +5,13 @@ import (
 	"github.com/soumya92/barista/colors"
 	"github.com/soumya92/barista/modules/meminfo"
 	"github.com/soumya92/barista/outputs"
-	"github.com/soumya92/barista/pango/icons/material"
+	"github.com/soumya92/barista/pango"
 )
 
 // Get Create a module
 func Get() bar.Module {
 	return meminfo.New().OutputFunc(func(m meminfo.Info) bar.Output {
-		out := outputs.Pango(material.Icon("memory"),  outputs.IBytesize(m.Available()))
+		out := outputs.Pango(pango.Icon("material-memory"), outputs.IBytesize(m.Available()))
 		freeGigs := m.Available().Gigabytes()
 		switch {
 		case freeGigs < 0.5:

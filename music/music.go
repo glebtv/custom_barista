@@ -10,7 +10,6 @@ import (
 	"github.com/soumya92/barista/modules/media"
 	"github.com/soumya92/barista/outputs"
 	"github.com/soumya92/barista/pango"
-	"github.com/soumya92/barista/pango/icons/fontawesome"
 )
 
 func truncate(in string, l int) string {
@@ -37,25 +36,20 @@ func formatMediaTime(d time.Duration) string {
 
 func mediaFormatFunc(m media.Info) bar.Output {
 	if m.PlaybackStatus == media.Stopped || m.PlaybackStatus == media.Disconnected {
-		return outputs.Empty()
+		return nil
 	}
 	artist := truncate(m.Artist, 20)
 	title := truncate(m.Title, 40-len(artist))
 	if len(title) < 20 {
 		artist = truncate(m.Artist, 40-len(title))
 	}
-	var iconAndPosition pango.Node
+	iconAndPosition := pango.Icon("fa-music").Color(colors.Hex("#f70"))
 	if m.PlaybackStatus == media.Playing {
-		iconAndPosition = pango.Span(
-			colors.Hex("#f70"),
-			fontawesome.Icon("music"),
-			utils.Spacer,
-			formatMediaTime(m.Position()),
-			"/",
-			formatMediaTime(m.Length),
+		iconAndPosition.Append(
+			utils.Spacer, pango.Textf("%s/%s",
+				formatMediaTime(m.Position()),
+				formatMediaTime(m.Length)),
 		)
-	} else {
-		iconAndPosition = fontawesome.Icon("music", pango.Color(colors.Hex("#f70"))...)
 	}
 	return outputs.Pango(iconAndPosition, utils.Spacer, title, " - ", artist)
 }
