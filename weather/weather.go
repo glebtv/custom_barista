@@ -16,7 +16,7 @@ func Get(cityId string) *weather.Module {
 	// https://openweathermap.org/api.
 	wthr := weather.New(
 		openweathermap.CityID(cityId).Build(),
-	).OutputFunc(func(w weather.Weather) bar.Output {
+	).Output(func(w weather.Weather) bar.Output {
 		iconName := ""
 		switch w.Condition {
 		case weather.Thunderstorm,

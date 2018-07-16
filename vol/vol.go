@@ -10,7 +10,7 @@ import (
 )
 
 func Get() *volume.Module {
-	return volume.DefaultMixer().OutputFunc(func(v volume.Volume) bar.Output {
+	return volume.DefaultMixer().Output(func(v volume.Volume) bar.Output {
 		if v.Mute {
 			return outputs.
 				Pango(pango.Icon("ion-volume-off"), "MUT").

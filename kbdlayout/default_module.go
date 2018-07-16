@@ -8,7 +8,7 @@ import (
 )
 
 func Get() bar.Module {
-	return New().OutputFunc(func(i Info) bar.Output {
+	return New().Output(func(i Info) bar.Output {
 		out := KbdOut{}
 		la := strings.ToUpper(i.Layout)
 		lseg := bar.PangoSegment(la)

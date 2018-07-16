@@ -5,8 +5,7 @@
 package main
 
 import (
-	"os"
-
+	"github.com/glebtv/custom_barista/batt"
 	"github.com/glebtv/custom_barista/dsk"
 	"github.com/glebtv/custom_barista/kbdlayout"
 	"github.com/glebtv/custom_barista/load"
@@ -20,7 +19,6 @@ import (
 	"github.com/soumya92/barista"
 	"github.com/soumya92/barista/bar"
 	"github.com/soumya92/barista/colors"
-	"github.com/soumya92/barista/modules/battery"
 	"github.com/soumya92/barista/modules/counter"
 	"github.com/soumya92/barista/pango/icons/material"
 	"github.com/soumya92/barista/pango/icons/typicons"
@@ -53,9 +51,7 @@ func main() {
 
 	modules = netm.AddTo(modules)
 
-	if _, err := os.Stat("/sys/class/power_supply/BAT0"); err == nil {
-		modules = append(modules, battery.New("BAT0"))
-	}
+	modules = append(modules, batt.Get())
 
 	modules = append(modules, temp.Get())
 	//modules = append(modules, weather.Get("524901"))

@@ -36,7 +36,7 @@ type Module struct {
 	bar.Module
 	bar.Sink
 	base.SimpleClickHandler
-	outputFunc func(Info) bar.Output
+	output func(Info) bar.Output
 }
 
 type KbdOut struct {
@@ -47,7 +47,7 @@ func (k KbdOut) Segments() []*bar.Segment {
 	return k.Seg
 }
 
-var DefaultOutputFunc = func(i Info) bar.Output {
+var DefaultOutput = func(i Info) bar.Output {
 	out := KbdOut{}
 	lseg := bar.TextSegment(strings.ToUpper(i.Layout))
 	out.Seg = append(out.Seg, lseg)
@@ -66,20 +66,20 @@ func (m *Module) Stream(s bar.Sink) {
 // New constructs an instance of the clock module with a default configuration.
 func New() *Module {
 	m := &Module{
-		outputFunc: DefaultOutputFunc,
+		output: DefaultOutput,
 	}
 	// Default output template
 
 	Subscribe(func(layout string, mods uint8) {
 		i := Info{Layout: layout, Mods: mods}
-		m.Sink.Output(m.outputFunc(i))
+		m.Sink.Output(m.output(i))
 	})
 
 	return m
 }
 
-func (m *Module) OutputFunc(outputFunc func(Info) bar.Output) *Module {
-	m.outputFunc = outputFunc
+func (m *Module) Output(output func(Info) bar.Output) *Module {
+	m.output = output
 	return m
 }
 
@@ -90,7 +90,7 @@ func (m *Module) update() {
 		mods = 0
 	}
 	i := Info{Layout: layout, Mods: mods}
-	m.Sink.Output(m.outputFunc(i))
+	m.Sink.Output(m.output(i))
 }
 
 func (m *Module) Click(e bar.Event) {

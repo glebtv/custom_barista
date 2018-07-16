@@ -26,7 +26,7 @@ func AddTo(modules []bar.Module) []bar.Module {
 			ift := ifc
 			net := netspeed.New(ift.Name).
 				RefreshInterval(2 * time.Second).
-				OutputFunc(func(s netspeed.Speeds) bar.Output {
+				Output(func(s netspeed.Speeds) bar.Output {
 					// to update flags
 					ift, err := net.InterfaceByName(ift.Name)
 					if err != nil {
@@ -96,7 +96,7 @@ func AddTo(modules []bar.Module) []bar.Module {
 		}
 
 		if strings.HasPrefix(ifc.Name, "wl") {
-			wlan := wlan.New(ifc.Name)
+			wlan := wlan.Named(ifc.Name)
 			modules = append(modules, wlan)
 		}
 	}

@@ -60,5 +60,5 @@ func Get(player string) bar.Module {
 	// https://github.com/acrisci/playerctl
 	// for deadbeef use this plugin:
 	// https://aur.archlinux.org/packages/deadbeef-mpris2-plugin/
-	return media.New(player).OutputFunc(mediaFormatFunc)
+	return media.New(player).Output(mediaFormatFunc)
 }

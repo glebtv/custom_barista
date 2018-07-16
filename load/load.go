@@ -10,7 +10,7 @@ import (
 )
 
 func Get() bar.Module {
-	return sysinfo.New().OutputFunc(func(s sysinfo.Info) bar.Output {
+	return sysinfo.New().Output(func(s sysinfo.Info) bar.Output {
 		out := outputs.Textf("%0.2f %0.2f", s.Loads[0], s.Loads[2])
 		// Load averages are unusually high for a few minutes after boot.
 		if s.Uptime < 10*time.Minute {

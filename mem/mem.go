@@ -10,7 +10,7 @@ import (
 
 // Get Create a module
 func Get() bar.Module {
-	return meminfo.New().OutputFunc(func(m meminfo.Info) bar.Output {
+	return meminfo.New().Output(func(m meminfo.Info) bar.Output {
 		out := outputs.Pango(pango.Icon("material-memory"), outputs.IBytesize(m.Available()))
 		freeGigs := m.Available().Gigabytes()
 		switch {

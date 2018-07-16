@@ -12,7 +12,7 @@ import (
 )
 
 func Get() bar.Module {
-	time := clock.Local().OutputFunc(time.Second, func(now time.Time) bar.Output {
+	time := clock.Local().Output(time.Second, func(now time.Time) bar.Output {
 		return outputs.Pango(
 			pango.Icon("material-today").Color(colors.Scheme("dim-icon")),
 			now.Format("Mon 2006-01-02 "),

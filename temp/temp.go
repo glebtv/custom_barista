@@ -29,7 +29,7 @@ func Get() *cputemp.Module {
 				return nil
 			}
 		}).
-		OutputFunc(func(temp unit.Temperature) bar.Output {
+		Output(func(temp unit.Temperature) bar.Output {
 			return outputs.Pango(
 				pango.Icon("material-build"), utils.Spacer,
 				pango.Textf("%2d℃", int(temp.Celsius())),

@@ -15,7 +15,7 @@ import (
 )
 
 func AddTo(modules []bar.Module) []bar.Module {
-	modules = append(modules, diskspace.New("/").OutputTemplate(`FREE / {{.Free.Gigabytes | printf "%.2f"}} GB`))
+	modules = append(modules, diskspace.New("/").Template(`FREE / {{.Free.Gigabytes | printf "%.2f"}} GB`))
 
 	path, err := exec.LookPath("findmnt")
 	if err != nil {
@@ -34,7 +34,7 @@ func AddTo(modules []bar.Module) []bar.Module {
 		diskio.RefreshInterval(2 * time.Second)
 
 		sda := diskio.New(name).
-			OutputFunc(func(io diskio.IO) bar.Output {
+			Output(func(io diskio.IO) bar.Output {
 				//spew.Dump(io)
 				return outputs.Pango(
 					pango.Textf("io "),
