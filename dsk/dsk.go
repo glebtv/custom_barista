@@ -6,16 +6,16 @@ import (
 	"strings"
 	"time"
 
+	"barista.run/bar"
+	"barista.run/modules/diskio"
+	"barista.run/modules/diskspace"
+	"barista.run/outputs"
+	"barista.run/pango"
 	"github.com/glebtv/custom_barista/utils"
-	"github.com/soumya92/barista/bar"
-	"github.com/soumya92/barista/modules/diskio"
-	"github.com/soumya92/barista/modules/diskspace"
-	"github.com/soumya92/barista/outputs"
-	"github.com/soumya92/barista/pango"
 )
 
 func AddTo(modules []bar.Module) []bar.Module {
-	modules = append(modules, diskspace.New("/").Template(`FREE / {{.Free.Gigabytes | printf "%.2f"}} GB`))
+	modules = append(modules, diskspace.New("/"))
 
 	path, err := exec.LookPath("findmnt")
 	if err != nil {

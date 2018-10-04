@@ -3,8 +3,8 @@ package kbdlayout
 import (
 	"strings"
 
-	"github.com/soumya92/barista/bar"
-	"github.com/soumya92/barista/colors"
+	"barista.run/bar"
+	"barista.run/colors"
 )
 
 func Get() bar.Module {

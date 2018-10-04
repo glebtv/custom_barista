@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/glebtv/custom_barista/utils"
-	"github.com/soumya92/barista/bar"
-	"github.com/soumya92/barista/colors"
-	"github.com/soumya92/barista/modules/netspeed"
-	"github.com/soumya92/barista/modules/wlan"
-	"github.com/soumya92/barista/outputs"
-	"github.com/soumya92/barista/pango"
+	"barista.run/bar"
+	"barista.run/colors"
+	"barista.run/modules/netspeed"
+	"barista.run/modules/wlan"
+	"barista.run/outputs"
+	"barista.run/pango"
 )
 
 func AddTo(modules []bar.Module) []bar.Module {

@@ -3,9 +3,9 @@ package kbdlayout
 import (
 	"strings"
 	"sync"
+	"time"
 
-	"github.com/soumya92/barista/bar"
-	"github.com/soumya92/barista/base"
+	"barista.run/bar"
 )
 
 const NUM_LOCK = 16
@@ -35,8 +35,18 @@ func (i Info) GetMods() []string {
 type Module struct {
 	bar.Module
 	bar.Sink
-	base.SimpleClickHandler
-	output func(Info) bar.Output
+	outputFunc func(Info) bar.Output
+}
+
+func (m *Module) Stream(s bar.Sink) {
+	forever := make(chan struct{})
+	m.Sink = s
+	<-forever
+}
+
+func (m *Module) Output(outputFunc func(Info) bar.Output) *Module {
+	m.outputFunc = outputFunc
+	return m
 }
 
 type KbdOut struct {
@@ -47,39 +57,28 @@ func (k KbdOut) Segments() []*bar.Segment {
 	return k.Seg
 }
 
-var DefaultOutput = func(i Info) bar.Output {
-	out := KbdOut{}
-	lseg := bar.TextSegment(strings.ToUpper(i.Layout))
-	out.Seg = append(out.Seg, lseg)
-	for _, mod := range i.GetMods() {
-		out.Seg = append(out.Seg, bar.TextSegment(mod))
-	}
-	return bar.Output(out)
-}
-
-func (m *Module) Stream(s bar.Sink) {
-	forever := make(chan struct{})
-	m.Sink = s
-	<-forever
-}
-
 // New constructs an instance of the clock module with a default configuration.
 func New() *Module {
-	m := &Module{
-		output: DefaultOutput,
-	}
+	m := &Module{}
 	// Default output template
 
 	Subscribe(func(layout string, mods uint8) {
 		i := Info{Layout: layout, Mods: mods}
-		m.Sink.Output(m.output(i))
+		m.Sink.Output(m.outputFunc(i))
 	})
-
-	return m
-}
-
-func (m *Module) Output(output func(Info) bar.Output) *Module {
-	m.output = output
+	m.Output(func(i Info) bar.Output {
+		out := []*bar.Segment{}
+		lseg := bar.TextSegment(strings.ToUpper(i.Layout)).OnClick(m.Click)
+		out = append(out, lseg)
+		for _, mod := range i.GetMods() {
+			out = append(out, bar.TextSegment(mod))
+		}
+		return KbdOut{Seg: out}
+	})
+	go func() {
+		time.Sleep(1 * time.Second)
+		m.update()
+	}()
 	return m
 }
 
@@ -90,7 +89,7 @@ func (m *Module) update() {
 		mods = 0
 	}
 	i := Info{Layout: layout, Mods: mods}
-	m.Sink.Output(m.output(i))
+	m.Sink.Output(m.outputFunc(i))
 }
 
 func (m *Module) Click(e bar.Event) {

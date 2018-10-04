@@ -1,14 +1,14 @@
 package ltime
 
 import (
-	"os/exec"
 	"time"
 
-	"github.com/soumya92/barista/bar"
-	"github.com/soumya92/barista/colors"
-	"github.com/soumya92/barista/modules/clock"
-	"github.com/soumya92/barista/outputs"
-	"github.com/soumya92/barista/pango"
+	"barista.run/bar"
+	"barista.run/base/click"
+	"barista.run/colors"
+	"barista.run/modules/clock"
+	"barista.run/outputs"
+	"barista.run/pango"
 )
 
 func Get() bar.Module {
@@ -18,12 +18,7 @@ func Get() bar.Module {
 			now.Format("Mon 2006-01-02 "),
 			pango.Icon("material-access-time").Color(colors.Scheme("dim-icon")),
 			now.Format("15:04:05"),
-		)
-	})
-	time.OnClick(func(e bar.Event) {
-		if e.Button == bar.ButtonLeft {
-			exec.Command("gsimplecal").Run()
-		}
+		).OnClick(click.RunLeft("gsimplecal"))
 	})
 	return time
 }
