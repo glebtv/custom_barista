@@ -35,7 +35,7 @@ func (i Info) GetMods() []string {
 type Module struct {
 	bar.Module
 	bar.Sink
-	outputFunc func(Info) bar.Output
+	outputFunc func(*Module, Info) bar.Output
 }
 
 func (m *Module) Stream(s bar.Sink) {
@@ -44,7 +44,7 @@ func (m *Module) Stream(s bar.Sink) {
 	<-forever
 }
 
-func (m *Module) Output(outputFunc func(Info) bar.Output) *Module {
+func (m *Module) Output(outputFunc func(*Module, Info) bar.Output) *Module {
 	m.outputFunc = outputFunc
 	return m
 }
@@ -64,9 +64,9 @@ func New() *Module {
 
 	Subscribe(func(layout string, mods uint8) {
 		i := Info{Layout: layout, Mods: mods}
-		m.Sink.Output(m.outputFunc(i))
+		m.Sink.Output(m.outputFunc(m, i))
 	})
-	m.Output(func(i Info) bar.Output {
+	m.Output(func(m *Module, i Info) bar.Output {
 		out := []*bar.Segment{}
 		lseg := bar.TextSegment(strings.ToUpper(i.Layout)).OnClick(m.Click)
 		out = append(out, lseg)
@@ -89,7 +89,7 @@ func (m *Module) update() {
 		mods = 0
 	}
 	i := Info{Layout: layout, Mods: mods}
-	m.Sink.Output(m.outputFunc(i))
+	m.Sink.Output(m.outputFunc(m, i))
 }
 
 func (m *Module) Click(e bar.Event) {

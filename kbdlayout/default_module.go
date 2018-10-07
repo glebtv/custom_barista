@@ -8,10 +8,10 @@ import (
 )
 
 func Get() bar.Module {
-	return New().Output(func(i Info) bar.Output {
+	return New().Output(func(m *Module, i Info) bar.Output {
 		out := KbdOut{}
 		la := strings.ToUpper(i.Layout)
-		lseg := bar.PangoSegment(la)
+		lseg := bar.PangoSegment(la).OnClick(m.Click)
 		if la != "US" {
 			lseg.Color(colors.Scheme("bad"))
 		}
