@@ -21,7 +21,6 @@ import (
 	"github.com/glebtv/custom_barista/netm"
 	"github.com/glebtv/custom_barista/temp"
 	"github.com/glebtv/custom_barista/utils"
-	"github.com/glebtv/custom_barista/vol"
 )
 
 func main() {
@@ -55,7 +54,7 @@ func main() {
 
 	modules = append(modules, temp.Get())
 	//modules = append(modules, weather.Get("524901"))
-	modules = append(modules, vol.Get())
+	//modules = append(modules, vol.Get())
 
 	// pacin gsimplecal
 	modules = append(modules, ltime.Get())
