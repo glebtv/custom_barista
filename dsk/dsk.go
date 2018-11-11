@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"barista.run/format"
 	"barista.run/bar"
 	"barista.run/modules/diskio"
 	"barista.run/modules/diskspace"
@@ -38,9 +39,9 @@ func AddTo(modules []bar.Module) []bar.Module {
 				//spew.Dump(io)
 				return outputs.Pango(
 					pango.Textf("io "),
-					pango.Textf("%9s", outputs.IByterate(io.Input)),
+					pango.Textf("%9s", format.IByterate(io.Input)),
 					utils.Spacer,
-					pango.Textf("%9s", outputs.IByterate(io.Output)),
+					pango.Textf("%9s", format.IByterate(io.Output)),
 				)
 			})
 
@@ -49,3 +50,4 @@ func AddTo(modules []bar.Module) []bar.Module {
 
 	return modules
 }
+

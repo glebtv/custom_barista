@@ -7,6 +7,7 @@ import (
 
 	"github.com/glebtv/custom_barista/utils"
 	"barista.run/bar"
+	"barista.run/format"
 	"barista.run/colors"
 	"barista.run/modules/netspeed"
 	"barista.run/modules/wlan"
@@ -80,11 +81,11 @@ func AddTo(modules []bar.Module) []bar.Module {
 						upthings := []interface{}{
 							pango.Icon("material-file-upload"),
 							utils.Spacer,
-							pango.Textf("%8s", outputs.Byterate(s.Tx)),
+							pango.Textf("%8s", format.Byterate(s.Tx)),
 							pango.Text(" ").Small(),
 							pango.Icon("material-file-download"),
 							utils.Spacer,
-							pango.Textf("%8s", outputs.Byterate(s.Rx)),
+							pango.Textf("%8s", format.Byterate(s.Rx)),
 							utils.Spacer, pango.Textf("%s", strings.Join(ips, "|")),
 						}
 						things = append(things, upthings...)

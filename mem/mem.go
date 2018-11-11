@@ -1,6 +1,7 @@
 package mem
 
 import (
+	"barista.run/format"
 	"barista.run/bar"
 	"barista.run/colors"
 	"barista.run/modules/meminfo"
@@ -11,7 +12,7 @@ import (
 // Get Create a module
 func Get() bar.Module {
 	return meminfo.New().Output(func(m meminfo.Info) bar.Output {
-		out := outputs.Pango(pango.Icon("material-memory"), outputs.IBytesize(m.Available()))
+		out := outputs.Pango(pango.Icon("material-memory"), format.IBytesize(m.Available()))
 		freeGigs := m.Available().Gigabytes()
 		switch {
 		case freeGigs < 0.5:
