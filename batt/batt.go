@@ -14,6 +14,7 @@ func Get() bar.Module {
 		battery.Charging:    "CHR",
 		battery.Discharging: "BAT",
 		battery.NotCharging: "NOT",
+		battery.Full:        "FULL",
 		battery.Unknown:     "UNK",
 	}
 
