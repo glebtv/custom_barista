@@ -45,7 +45,7 @@ func main() {
 	if _, err := os.Stat("/usr/bin/rivalcfg"); errors.Is(err, os.ErrNotExist) {
 		// rivalcfg does not exist
 	} else {
-		mouseBattery := shell.New("/usr/bin/rivalcfg", "--battery-level").
+		mouseBattery := shell.New("rivalcfg", "--battery-level").
 			Every(10 * time.Second).
 			Output(func(count string) bar.Output {
 				return outputs.Textf("%s", count)
