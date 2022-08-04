@@ -5,6 +5,8 @@
 package main
 
 import (
+	"errors"
+	"os"
 	"time"
 
 	barista "barista.run"
@@ -63,12 +65,16 @@ func main() {
 	// pacin gsimplecal
 	modules = append(modules, ltime.Get())
 
-	mouseBattery := shell.New("/usr/bin/rivalcfg", "---battery-level").
-		Every(60 * time.Second).
-		Output(func(count string) bar.Output {
-			return outputs.Textf("%s", count)
-		})
-	modules = append(modules, mouseBattery)
+	if _, err := os.Stat("/usr/bin/rivalcfg"); errors.Is(err, os.ErrNotExist) {
+		// rivalcfg does not exist
+	} else {
+		mouseBattery := shell.New("/usr/bin/rivalcfg", "---battery-level").
+			Every(60 * time.Second).
+			Output(func(count string) bar.Output {
+				return outputs.Textf("%s", count)
+			})
+		modules = append(modules, mouseBattery)
+	}
 
 	panic(barista.Run(modules...))
 }
