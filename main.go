@@ -5,10 +5,14 @@
 package main
 
 import (
+	"time"
+
 	barista "barista.run"
 	"barista.run/bar"
 	"barista.run/colors"
 	"barista.run/modules/counter"
+	"barista.run/modules/shell"
+	"barista.run/outputs"
 	"barista.run/pango/icons/material"
 	"barista.run/pango/icons/typicons"
 	"github.com/glebtv/custom_barista/batt"
@@ -38,7 +42,7 @@ func main() {
 
 	modules = append(modules, kbdlayout.Get())
 
-	modules = append(modules, music.Get("google-play-music-desktop-player"))
+	//modules = append(modules, music.Get("google-play-music-desktop-player"))
 	modules = append(modules, music.Get("DeaDBeeF"))
 
 	modules = append(modules, counter.New("C:%d"))
@@ -58,6 +62,13 @@ func main() {
 
 	// pacin gsimplecal
 	modules = append(modules, ltime.Get())
+
+	mouseBattery := shell.New("/usr/bin/rivalcfg", "---battery-level").
+		Every(60 * time.Second).
+		Output(func(count string) bar.Output {
+			return outputs.Textf("%s", count)
+		})
+	modules = append(modules, mouseBattery)
 
 	panic(barista.Run(modules...))
 }
