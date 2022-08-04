@@ -42,6 +42,17 @@ func main() {
 
 	modules := make([]bar.Module, 0)
 
+	if _, err := os.Stat("/usr/bin/rivalcfg"); errors.Is(err, os.ErrNotExist) {
+		// rivalcfg does not exist
+	} else {
+		mouseBattery := shell.New("/usr/bin/rivalcfg", "--battery-level").
+			Every(10 * time.Second).
+			Output(func(count string) bar.Output {
+				return outputs.Textf("%s", count)
+			})
+		modules = append(modules, mouseBattery)
+	}
+
 	modules = append(modules, kbdlayout.Get())
 
 	//modules = append(modules, music.Get("google-play-music-desktop-player"))
@@ -64,17 +75,6 @@ func main() {
 
 	// pacin gsimplecal
 	modules = append(modules, ltime.Get())
-
-	if _, err := os.Stat("/usr/bin/rivalcfg"); errors.Is(err, os.ErrNotExist) {
-		// rivalcfg does not exist
-	} else {
-		mouseBattery := shell.New("/usr/bin/rivalcfg", "---battery-level").
-			Every(60 * time.Second).
-			Output(func(count string) bar.Output {
-				return outputs.Textf("%s", count)
-			})
-		modules = append(modules, mouseBattery)
-	}
 
 	panic(barista.Run(modules...))
 }
