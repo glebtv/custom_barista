@@ -5,16 +5,10 @@
 package main
 
 import (
-	"errors"
-	"os"
-	"time"
-
 	barista "barista.run"
 	"barista.run/bar"
 	"barista.run/colors"
 	"barista.run/modules/counter"
-	"barista.run/modules/shell"
-	"barista.run/outputs"
 	"barista.run/pango/icons/material"
 	"barista.run/pango/icons/typicons"
 	"github.com/glebtv/custom_barista/batt"
